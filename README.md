@@ -247,7 +247,7 @@ Open a [GitHub Issue](../../issues). Public, no introduction needed.
 **For research collaboration, recruitment, or anything that needs a
 private channel:**
 Please introduce yourself first via the contact form:
-<!-- TODO: link to Tally form, to be added before publication -->
+**[tally.so/r/D4xVL5](https://tally.so/r/D4xVL5)**
 
 A short message describing who you are, what organization you're with,
 and what you'd like to discuss is enough. I'll respond with appropriate

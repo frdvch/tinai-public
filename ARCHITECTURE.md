@@ -10,9 +10,9 @@ selective disclosure), but the architecture is fully described here.
 | Metric | Value |
 |---|---|
 | Source files | 101 |
-| Lines of code | ~22,189 (Python + JS + HTML + CSS + shell) |
+| Lines of code | ~22,600 (Python + JS + HTML + CSS + shell) |
 | Repo size (no .git, no venv) | 7.3 MB |
-| Largest modules | `core/agent.py` 1886 LOC, `main.py` 1274 LOC, `hud/window.py` 1217 LOC, `core/telegram_listener.py` 825 LOC, `core/router.py` 818 LOC |
+| Largest modules | `core/agent.py` 1886 LOC, `main.py` 1274 LOC, `hud/window.py` 1217 LOC, `core/telegram_listener.py` ~1150 LOC, `core/router.py` ~830 LOC |
 
 ## Hardware
 
@@ -91,7 +91,7 @@ The router is the part that decides where a request goes. It lives in
 
 Tiers, in cost order:
 
-1. **Qwen 3 4B** — local Ollama. $0 per call.
+1. **Qwen 3 4B q8_0** — local Ollama (8-bit quantized, 4.4 GB, fits fully in 4 GB VRAM). $0 per call.
 2. **Groq Llama 3.3 70B** — Groq API. ~$0.59 input / $0.79 output per Mtok.
 3. **Claude Haiku 4-5** — Anthropic API. ~$1 input / $5 output per Mtok.
 4. **Claude Sonnet 4-6** — Anthropic API. ~$3 input / $15 output per Mtok.
@@ -106,6 +106,10 @@ Selection logic in `_choose_provider`:
 
 The order can be inverted by setting `JARVIS_PREFER_LOCAL=1`, which makes
 the router try Qwen first regardless of classification.
+
+A `local_only = true` flag in `[llm.local]` disables cloud fallback entirely.
+When set, `_choose_provider` returns only the local tier — useful when API
+credits are unavailable. Toggle back with `local_only = false` and restart.
 
 ### Local circuit breaker
 
@@ -297,17 +301,37 @@ private git remote when enabled. Auto-push is `false` in config by default.
 
 ## Telegram bot
 
-`core/telegram_listener.py`, ~825 LOC. Owner-gated: an `OWNER_ID` constant
+`core/telegram_listener.py`, ~1150 LOC. Owner-gated: an `OWNER_ID` constant
 filters every callback. All non-owner messages are silently ignored.
 
 Capabilities:
 
 - Text in private chat → `agent.respond()`
 - Voice OGG → Whisper → `agent.respond()`
-- Slash commands for an internal content pipeline (out of public scope
-  for this project)
-- Group topic routing: topic 2 for shopping, topic 3 for tasks, other
-  topics are silent
+- Group topic routing: topic IDs configured in `config.toml`
+- Quick-menu reply keyboard (8 rows of shortcut buttons)
+- `setChatMenuButton` — the "/" button in the text field shows only `/menu`
+
+### Quick-menu buttons (as of 2026-06)
+
+| Button | What it does |
+|---|---|
+| Показники | psutil snapshot: CPU, RAM, disk, battery, temperatures |
+| Нотатки | List saved notes; inline ✅ (done) and 🗑 (delete) per note |
+| Нагадування | List active reminders; inline 🗑 + `systemctl stop` per timer |
+| Spotify | Inline transport: ⏮ ⏯ ⏭, volume ±10, current track. Auto-launches Spotify if not running |
+| Таймер | ForceReply → minutes → `systemd-run --on-active` + desktop notify + TG message |
+| Погода | wttr.in one-liner for the configured city |
+| Буфер | ForceReply → read or write clipboard via xclip |
+| Apps | Inline submenu: 12 desktop apps, launched via `app_launch()` |
+
+### Spotify control
+
+Spotify is controlled via D-Bus directly (`dbus-send` to
+`org.mpris.MediaPlayer2.spotify`), without the Spotify Web API or OAuth.
+This covers play/pause/next/previous and volume adjustment. If the
+`spotify` process is not running, the bot launches it first via
+`app_launch()` and then opens the transport keyboard.
 
 The bot is opt-in (`tg.enabled = false` by default in config).
 

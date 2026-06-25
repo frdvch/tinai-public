@@ -4,25 +4,35 @@ This document tracks open questions, planned work, and post candidates for the
 [blog](blog/en/). It is intentionally short and honest about what is real code
 versus what is on paper.
 
-## Status snapshot (2026-05-16)
+## Status snapshot (2026-06-26)
 
-- Active branch: `feat/phase-8-10-local-memory-proactive`
-- 17 commits on branch, no remote configured (local-only repo)
-- 13 modified files, 2 untracked files, 1 deletion pending commit
-- Last commit: `refactor(night-mode): remove shutdown stack` (2026-05-09)
+- `shadow.service` active and enabled (autostart on boot)
+- `shadow-restart.timer` active and enabled
+- Local model: `qwen3:4b-q8_0` (8-bit quantized, 4.4 GB, fully in VRAM)
+- Cloud API temporarily disabled via `local_only = true` in config
+- Telegram bot substantially expanded since May (see Architecture for details)
+
+## Upcoming
+
+- **Vault semantic search via Telegram.** Natural-language queries ("what
+  did we decide about X?") will trigger a ChromaDB similarity search over
+  indexed Obsidian vault files, with qwen3 synthesizing a response. No new
+  collection yet — vault indexer not written.
+- **HUD refactor.** Remove the text transcript and reminder panels from the
+  overlay; keep only the system stats bar and profile toggle. Deferred
+  because the current web-based HUD works well enough and the refactor is
+  nontrivial.
 
 ## On paper, not in code
 
 These are designed but not implemented. Mentioned for honesty.
 
-- **Career-ops module.** Vault folders `_tin_inbox/scans/` and
-  `_tin_inbox/tracked/` are planned for tracking job postings, recruiter
-  conversations, and interview preparation in a structured way. The Python
-  side (`core/personal_journal.py`) is an empty stub. The vault folders do
-  not exist yet.
+- **Career-ops module.** Vault folders for tracking job postings and
+  interview preparation. The Python side (`core/personal_journal.py`) is
+  an empty stub.
 - **Reasoning visibility in the HUD.** Currently only a thinking spinner
-  appears during tool loops. A step-by-step view of the agent's tool calls
-  is on the wishlist but not designed yet.
+  appears during tool loops. A step-by-step view of tool calls is on the
+  wishlist but not designed yet.
 
 ## Current branch — what's left
 

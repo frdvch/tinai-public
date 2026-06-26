@@ -69,5 +69,5 @@ Posts land in [`blog/en/`](blog/en/) and [`blog/uk/`](blog/uk/) in parallel.
 - [ ] Why I built tinAI instead of using ChatGPT
 - [ ] How exponential decay memory works — and why I chose it
 - [ ] What I learned building 25 MCP integrations
-- [ ] Removing the night mode: when good ideas are not worth the cost
+- [x] Removing the night mode: when good ideas are not worth the cost
 - [ ] Working with Claude Code: the new shape of solo engineering

@@ -299,6 +299,23 @@ The vault paths the agent reads from:
 A separate watchdog daemon (`core/vault_sync.py`) syncs the vault to a
 private git remote when enabled. Auto-push is `false` in config by default.
 
+### Vault semantic search
+
+`core/vault_index.py` (~220 LOC) and `core/vault_search.py` (~33 LOC).
+
+The vault is indexed into a ChromaDB collection using `nomic-embed-text`
+embeddings via the local Ollama instance. The index is stored alongside the
+main memory ChromaDB database at `data/chromadb/`. 655 chunks at the time
+of writing.
+
+The agent exposes a `vault_recall` tool. When called with a natural language
+query, it runs cosine similarity search against the index and returns the top
+matching chunks with their source paths. The result is synthesized by the
+local Qwen model before returning to the user.
+
+The index is not automatically rebuilt on vault changes — rebuilds are
+triggered manually or via the nightly consolidation job.
+
 ## Telegram bot
 
 `core/telegram_listener.py`, ~1150 LOC. Owner-gated: an `OWNER_ID` constant
@@ -337,7 +354,7 @@ The bot is opt-in (`tg.enabled = false` by default in config).
 
 ## MCP servers
 
-There are 24 MCP servers under `mcp_servers/`. This is a large surface area
+There are 25 MCP servers under `mcp_servers/`. This is a large surface area
 and it is acknowledged. Some are heavily used, some rarely. Below is the
 function list. The exact tool counts per server may vary slightly.
 

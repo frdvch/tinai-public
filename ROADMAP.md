@@ -9,7 +9,7 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [x] 4-tier LLM routing (local → Groq → Haiku → Sonnet)
 - [x] ChromaDB semantic memory with exponential decay
 - [x] Knowledge graph (networkx, nightly consolidation)
-- [x] 24 MCP servers (web, files, shell, notes, reminders, vision, apps, Obsidian, Spotify, and more)
+- [x] 25 MCP servers (web, files, shell, notes, reminders, vision, apps, Obsidian, Spotify, vault search, and more)
 - [x] PyQt6 floating HUD (always-on-top, translucent, stats bar)
 - [x] Whisper STT (local, CUDA float16 / CPU int8 fallback)
 - [x] Telegram bot — mobile access to the full agent
@@ -17,6 +17,7 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [x] Circuit breaker for local LLM (2 failures or >15s → 10 min cloud fallback)
 - [x] Local-only mode (`local_only = true` in config — no cloud API calls)
 - [x] Local model upgraded to `qwen3:4b-q8_0` (8-bit, 4.4 GB, fully in VRAM)
+- [x] Vault semantic search via Telegram — nomic-embed-text embeddings, ChromaDB index over Obsidian notes, `vault_recall` tool
 - [x] Night mode — removed 2026-05-09 (overhead exceeded value)
 - [x] Public repo with ARCHITECTURE.md, ROADMAP.md, blog
 
@@ -25,7 +26,6 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 ## In progress
 
 - [ ] README.md polish — clearer intro, routing explainer, "why I built this", status badge
-- [ ] Vault semantic search via Telegram — ChromaDB index over Obsidian notes, natural language queries
 
 ---
 
@@ -68,6 +68,6 @@ Posts land in [`blog/en/`](blog/en/) and [`blog/uk/`](blog/uk/) in parallel.
 
 - [ ] Why I built tinAI instead of using ChatGPT
 - [ ] How exponential decay memory works — and why I chose it
-- [ ] What I learned building 24 MCP integrations
+- [ ] What I learned building 25 MCP integrations
 - [ ] Removing the night mode: when good ideas are not worth the cost
 - [ ] Working with Claude Code: the new shape of solo engineering

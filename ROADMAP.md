@@ -18,14 +18,9 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [x] Local-only mode (`local_only = true` in config — no cloud API calls)
 - [x] Local model upgraded to `qwen3:4b-q8_0` (8-bit, 4.4 GB, fully in VRAM)
 - [x] Vault semantic search via Telegram — nomic-embed-text embeddings, ChromaDB index over Obsidian notes, `vault_recall` tool
+- [x] README.md polish — routing order, Telegram quick-menu, operational security note, LinkedIn
 - [x] Night mode — removed 2026-05-09 (overhead exceeded value)
 - [x] Public repo with ARCHITECTURE.md, ROADMAP.md, blog
-
----
-
-## In progress
-
-- [ ] README.md polish — clearer intro, routing explainer, "why I built this", status badge
 
 ---
 
@@ -58,7 +53,7 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 
 ## Hardware upgrade horizon
 
-Candidate: RTX 5060 Ti 16 GB. Trigger: hitting the 4 GB VRAM ceiling with larger local models (Qwen 7B+ or local embeddings). Timeline: 3–6 months from mid-2026, subject to budget.
+Candidate: RTX 5060 Ti 16 GB. Trigger: hitting the 4 GB VRAM ceiling with larger local models (Qwen 7B+ or local embeddings). Subject to budget.
 
 ---
 

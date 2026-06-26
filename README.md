@@ -48,7 +48,7 @@ Core modules:
   and app launching.
 - **Obsidian.** Read-only on practice, by design — see
   [ARCHITECTURE.md](ARCHITECTURE.md#obsidian-integration).
-- **24 MCP servers** for shell, git, notes, reminders, web search, vision,
+- **25 MCP servers** for shell, git, notes, reminders, web search, vision,
   music, vault. Large surface, acknowledged.
 - **Cost routing** across Claude Sonnet, Claude Haiku, Groq Llama, and
   local Qwen 3 4B, with a circuit breaker that protects against local LLM
@@ -69,7 +69,7 @@ Brief overview:
 - **Read-only Obsidian integration** with secret scanning and a privacy
   window on writes.
 - **Telegram remote access** for text and voice.
-- **24 MCP servers** — a large surface area, acknowledged honestly.
+- **25 MCP servers** — a large surface area, acknowledged honestly.
 
 ## Status
 
@@ -83,13 +83,13 @@ Brief overview:
 - Obsidian read access (`vault_read`, `vault_list`, `vault_search`,
   `vault_daily_append`)
 - Clap activation as a wake mechanism
+- Vault semantic search via Telegram — ChromaDB index over Obsidian notes
+  (nomic-embed-text embeddings, `vault_recall` tool)
 - Cost telemetry written to `~/.local/share/jarvis/tool_stats.jsonl`
 - Edge TTS primary, Piper fallback
 
 ### Planned
 
-- Vault semantic search via Telegram — ChromaDB index over Obsidian notes,
-  natural language queries
 - HUD refactor — remove transcript panel, keep stats bar and profile
   toggle only
 - Architecture diagram (Mermaid or SVG)

@@ -47,7 +47,7 @@ tinAI — особистий голосовий і текстовий асист
   системи і запуску застосунків.
 - **Obsidian.** На практиці read-only, за дизайном — деталі у
   [ARCHITECTURE.md](ARCHITECTURE.md#obsidian-integration).
-- **24 MCP-сервери** для shell, git, нотаток, нагадувань, веб-пошуку,
+- **25 MCP-серверів** для shell, git, нотаток, нагадувань, веб-пошуку,
   vision, музики, vault. Велика поверхня, чесно визнається.
 - **Cost routing** між Claude Sonnet, Claude Haiku, Groq Llama і
   локальним Qwen 3 4B, з circuit breaker'ом проти latency-сплесків
@@ -68,7 +68,7 @@ tinAI — особистий голосовий і текстовий асист
 - **Read-only інтеграція з Obsidian** із secret-сканером і privacy
   window на writes.
 - **Telegram remote access** для тексту й голосу.
-- **24 MCP-сервери** — велика поверхня, визнається чесно.
+- **25 MCP-серверів** — велика поверхня, визнається чесно.
 
 ## Стан
 
@@ -82,13 +82,13 @@ tinAI — особистий голосовий і текстовий асист
 - Read-доступ до Obsidian (`vault_read`, `vault_list`, `vault_search`,
   `vault_daily_append`)
 - Clap-активація як wake-механізм
+- Vault semantic search через Telegram — ChromaDB-індекс по нотатках
+  Obsidian (nomic-embed-text, інструмент `vault_recall`)
 - Cost-телеметрія в `~/.local/share/jarvis/tool_stats.jsonl`
 - Edge TTS primary, Piper fallback
 
 ### Заплановано
 
-- Vault semantic search через Telegram — ChromaDB-індекс по нотатках
-  Obsidian, запити природною мовою
 - HUD рефакторинг — прибрати панель транскрипту, залишити лише stats bar
   і profile toggle
 - Діаграма архітектури (Mermaid або SVG)

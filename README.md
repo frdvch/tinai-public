@@ -43,7 +43,9 @@ Core modules:
   Piper as a fallback when there's no network.
 - **Memory.** ChromaDB plus a networkx knowledge graph plus an exponential
   forgetting curve. Nightly consolidation at 02:00.
-- **Telegram.** Owner-gated bot for remote text and voice (OGG) input.
+- **Telegram.** Owner-gated bot for remote text and voice (OGG) input,
+  with a quick-menu keyboard for Spotify, notes, reminders, system stats,
+  and app launching.
 - **Obsidian.** Read-only on practice, by design — see
   [ARCHITECTURE.md](ARCHITECTURE.md#obsidian-integration).
 - **24 MCP servers** for shell, git, notes, reminders, web search, vision,
@@ -58,8 +60,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the detailed write-up.
 
 Brief overview:
 
-- **4-tier cost routing:** Claude Sonnet → Claude Haiku → Groq Llama →
-  local Qwen 3 4B. Order can be inverted with `JARVIS_PREFER_LOCAL=1`.
+- **4-tier cost routing:** local Qwen 3 4B → Groq Llama → Claude Haiku →
+  Claude Sonnet. Order can be inverted with `JARVIS_PREFER_LOCAL=1`.
 - **Memory 2.0:** ChromaDB facts/episodes/reflections plus a networkx
   knowledge graph plus an exponential forgetting curve (halflife 30 days,
   threshold 0.1). The decay is real, not planned.
@@ -77,24 +79,21 @@ Brief overview:
 - Memory 2.0 with a real exponential forgetting curve
 - Nightly consolidation at 02:00 (catches up after suspend)
 - PyQt6 HUD with transcript, thinking spinner, and live system stats
-- Telegram bot (owner-gated, text + voice OGG)
+- Telegram bot (owner-gated, text + voice OGG + quick-menu keyboard)
 - Obsidian read access (`vault_read`, `vault_list`, `vault_search`,
   `vault_daily_append`)
 - Clap activation as a wake mechanism
 - Cost telemetry written to `~/.local/share/jarvis/tool_stats.jsonl`
 - Edge TTS primary, Piper fallback
 
-### In progress
+### Planned
 
-Current branch: `feat/phase-8-10-local-memory-proactive`.
-
-- Two untracked files awaiting completion:
-  `core/meeting_time_parser.py`, `scripts/wake_resume_starter.py`
-- 13 modified files awaiting commit
-- Haiku tier routing is configured but rarely hit in practice — needs
-  either clearer triggers or removal
-- Legacy `[llm.gemma]` config section needs renaming after the Gemma → Qwen
-  migration
+- Vault semantic search via Telegram — ChromaDB index over Obsidian notes,
+  natural language queries
+- HUD refactor — remove transcript panel, keep stats bar and profile
+  toggle only
+- Architecture diagram (Mermaid or SVG)
+- Demo video or GIF — HUD + Telegram interaction
 
 ### Removed or disabled
 
@@ -149,8 +148,8 @@ Details in [ARCHITECTURE.md](ARCHITECTURE.md#decisions-that-were-reverted).
 
 ASUS ROG Strix G713IC. Ubuntu 24.04. NVIDIA RTX 3050 4 GB VRAM.
 
-Upgrade on the horizon (3–6 months): potentially RTX 5060 Ti 16 GB if the
-career-ops module matures and hits the VRAM ceiling. See
+Upgrade on the horizon: RTX 5060 Ti 16 GB, if the project hits the VRAM
+ceiling with larger local models (Qwen 7B+ or local embeddings). See
 [ROADMAP.md](ROADMAP.md#hardware-upgrade-horizon).
 
 ## Source code access
@@ -191,8 +190,6 @@ inside. Not "I built this from scratch" — that would be a lie. Not
 "Claude built this" — also a lie. The truth: I am an engineer integrating
 existing components and AI-suggested patterns into a system that fits my
 specific needs, with honest assessment of what I do and do not understand.
-
-The blog covers this model in more detail.
 
 ## Blog
 
@@ -257,3 +254,4 @@ This is not gatekeeping for its own sake — see the operational note in
 [Why I'm building this](#why-im-building-this).
 
 **GitHub:** [@frdvch](https://github.com/frdvch)
+**LinkedIn:** [linkedin.com/in/antshkro](https://linkedin.com/in/antshkro)

@@ -61,7 +61,7 @@ Candidate: RTX 5060 Ti 16 GB. Trigger: hitting the 4 GB VRAM ceiling with larger
 
 Posts land in [`blog/en/`](blog/en/) and [`blog/uk/`](blog/uk/) in parallel.
 
-- [ ] Why I built tinAI instead of using ChatGPT
+- [x] Why I built tinAI instead of using ChatGPT
 - [ ] How exponential decay memory works — and why I chose it
 - [ ] What I learned building 25 MCP integrations
 - [x] Removing the night mode: when good ideas are not worth the cost

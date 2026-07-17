@@ -70,4 +70,4 @@ Posts land in [`blog/en/`](blog/en/) and [`blog/uk/`](blog/uk/) in parallel.
 - [x] Removing the night mode: when good ideas are not worth the cost
 - [ ] Working with Claude Code: the new shape of solo engineering
 - [ ] The local model that silently reasoned itself in circles — a quiet Ollama bug and what it explained in hindsight
-- [ ] Why every state-changing bot command needs a confirm button (and why a text reply isn't proof anything happened)
+- [x] Fake Tool Calls: How My AI Assistant Learned to Lie About Doing Things

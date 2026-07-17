@@ -10,7 +10,6 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [x] ChromaDB semantic memory with exponential decay
 - [x] Knowledge graph (networkx, nightly consolidation)
 - [x] 25 MCP servers (web, files, shell, notes, reminders, vision, apps, Obsidian, Spotify, vault search, and more)
-- [x] PyQt6 floating HUD (always-on-top, translucent, stats bar)
 - [x] Whisper STT (local, CUDA float16 / CPU int8 fallback)
 - [x] Telegram bot — mobile access to the full agent
 - [x] Telegram quick-menu keyboard (Spotify D-Bus, system metrics, notes, reminders, timer, weather, clipboard)
@@ -21,6 +20,10 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [x] README.md polish — routing order, Telegram quick-menu, operational security note, LinkedIn
 - [x] Night mode — removed 2026-05-09 (overhead exceeded value)
 - [x] Public repo with ARCHITECTURE.md, ROADMAP.md, blog
+- [x] HUD redesign — frameless floating circle UI, voice-only (chat/transcript panel removed entirely, not just trimmed)
+- [x] Local model "silent reasoning" bug fixed — model was looping in a hidden chain-of-thought step before every response, sometimes never converging
+- [x] Meeting mode — suppresses proactive nudges during calls, optional auto-expiry on a timer
+- [x] Telegram confirmation step before state-changing actions — profile switches, app closes, git push, deleting a reminder now require an explicit confirm tap, closing a "replies with text instead of doing it" failure mode
 
 ---
 
@@ -30,7 +33,6 @@ Plans, status, and what comes next. Updated regularly — a stale roadmap looks 
 - [ ] Blog post: why 4 tiers instead of just calling GPT-4
 - [ ] Blog post: building local AI on RTX 3050 4GB — what fits and what doesn't
 - [ ] Blog post: working with Claude Code as a solo developer
-- [ ] HUD refactor — remove transcript panel, keep stats bar and profile toggle only
 - [ ] Demo video or GIF — HUD + Telegram interaction, the single highest-impact missing asset
 
 ---
@@ -67,3 +69,5 @@ Posts land in [`blog/en/`](blog/en/) and [`blog/uk/`](blog/uk/) in parallel.
 - [ ] What I learned building 25 MCP integrations
 - [x] Removing the night mode: when good ideas are not worth the cost
 - [ ] Working with Claude Code: the new shape of solo engineering
+- [ ] The local model that silently reasoned itself in circles — a quiet Ollama bug and what it explained in hindsight
+- [ ] Why every state-changing bot command needs a confirm button (and why a text reply isn't proof anything happened)

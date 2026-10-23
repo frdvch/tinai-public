@@ -26,33 +26,52 @@ below.
 
 ## What it does
 
-tinAI is a personal voice and text assistant that runs locally on Linux.
-It listens (clap activation or Telegram), transcribes Ukrainian speech,
-routes the request to the cheapest acceptable model, calls tools through a
-local MCP layer, and speaks the answer back. It remembers across days
-through a memory system that actually forgets old, unimportant things
-instead of accumulating forever.
+tinAI is a personal assistant that runs locally on Linux. Text through
+Telegram is the working path: it classifies the request, routes it to the
+cheapest acceptable model, calls tools through a local MCP layer, and
+answers. It remembers across days through a memory system that actually
+forgets old, unimportant things instead of accumulating forever.
+
+The voice stack is built and present — Whisper STT for Ukrainian, Piper and
+Edge TTS for output, double-clap activation — but it ships disabled
+(`[voice] enabled = false`, `live_mode = false`). Voice was the original
+premise of this project and it turned out to be the part I use least:
+typing into Telegram from a phone beats talking at a laptop in nearly every
+situation I actually have. The code stays, because the cost of keeping it is
+one config flag.
 
 Core modules:
 
-- **HUD (PyQt6).** Frameless, transparent, always-on-top, draggable.
-  Floating in the top-right corner. Shows the transcript, a thinking
-  spinner, and live system stats.
-- **Voice.** Whisper `small` for STT (CUDA or CPU fallback). Edge TTS in
-  Ukrainian Neural voices as the primary speech output, with offline
-  Piper as a fallback when there's no network.
+- **HUD.** Frameless, transparent, always-on-top circular overlay. A PyQt6
+  shell wrapping a QWebEngine view over a local static server, fed by a
+  websocket. No chat input and no transcript panel — both were removed in
+  the 2026 redesign; everything routes through the backend.
 - **Memory.** ChromaDB plus a networkx knowledge graph plus an exponential
   forgetting curve. Nightly consolidation at 02:00.
-- **Telegram.** Owner-gated bot for remote text and voice (OGG) input,
-  with a quick-menu keyboard for Spotify, notes, reminders, system stats,
-  and app launching.
-- **Obsidian.** Read-only on practice, by design — see
+- **Telegram.** Owner-gated bot, the primary interface. Text and voice (OGG)
+  input, a persistent reply keyboard, and inline buttons for per-item
+  actions. Mutating actions require an explicit confirm tap.
+- **Obsidian.** Read and write, with a privacy window and a secret scanner
+  gating the write paths — see
   [ARCHITECTURE.md](ARCHITECTURE.md#obsidian-integration).
-- **25 MCP servers** for shell, git, notes, reminders, web search, vision,
-  music, vault. Large surface, acknowledged.
-- **Cost routing** across Claude Sonnet, Claude Haiku, Groq Llama, and
-  local Qwen 3 4B, with a circuit breaker that protects against local LLM
-  latency spikes.
+- **Finance.** Read-only connector to a bank's personal API: account
+  balances and statements, with spending categories derived from merchant
+  type codes rather than from a model. Replaced a manual receipt tracker —
+  see [the post on deleting it](blog/en/2026-10-23-deleting-the-feature-i-used-once.md).
+- **Shift schedule.** A rotating work schedule kept in the vault, editable
+  from Telegram, with a reminder before each shift and an acknowledge button.
+- **System metrics.** One source of truth for temperatures, fans, and load
+  (averages and peaks, named sensors), plus a persistent temperature log so
+  "is it hotter than last week" is an answerable question.
+- **24 MCP servers** for shell, git, notes, reminders, web search, vision,
+  music, vault, bank statements, network, and windows. Large surface,
+  acknowledged.
+- **Voice (disabled).** Whisper for Ukrainian STT, Piper for offline TTS,
+  double-clap activation. Present in the code, switched off in config.
+- **Cost routing** across local Qwen 3 4B and Claude Haiku today, with Groq
+  Llama and Claude Sonnet tiers still in the code but unreachable while
+  `local_only = true`. A circuit breaker protects against local LLM latency
+  spikes.
 
 ## Architecture
 
@@ -60,53 +79,82 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the detailed write-up.
 
 Brief overview:
 
-- **4-tier cost routing:** local Qwen 3 4B → Groq Llama → Claude Haiku →
-  Claude Sonnet. Order can be inverted with `JARVIS_PREFER_LOCAL=1`.
+- **Cost routing, as designed:** four tiers — local Qwen 3 4B → Groq Llama →
+  Claude Haiku → Claude Sonnet.
+- **Cost routing, as it actually runs:** `local_only = true`, so the ladder
+  collapses to two live tiers — local Qwen for short tool intents, Claude
+  Haiku for everything else, with local as the fallback. The Groq and Sonnet
+  branches are still in the router and currently unreachable. Documented as
+  two separate facts because conflating them would be marketing.
+- **Subscription transport:** the Haiku tier runs through the `claude -p`
+  CLI on an OAuth subscription, not through the API wallet, with the API key
+  deliberately stripped from the subprocess environment.
 - **Memory 2.0:** ChromaDB facts/episodes/reflections plus a networkx
   knowledge graph plus an exponential forgetting curve (halflife 30 days,
   threshold 0.1). The decay is real, not planned.
-- **PyQt6 transparent HUD** communicating over `ws://localhost:8765`.
-- **Read-only Obsidian integration** with secret scanning and a privacy
-  window on writes.
-- **Telegram remote access** for text and voice.
-- **25 MCP servers** — a large surface area, acknowledged honestly.
+- **Circular PyQt6/QWebEngine HUD** communicating over `ws://localhost:8765`,
+  with an origin allowlist on the socket.
+- **Obsidian integration** — read and write, with secret scanning and a
+  privacy window gating writes, and two separate path resolvers after a
+  path-traversal bug.
+- **Telegram remote access** for text and voice, with confirm tokens on
+  state-changing actions.
+- **24 MCP servers** — a large surface area, acknowledged honestly.
 
 ## Status
 
 ### Works
 
-- 4-tier cost routing with a circuit breaker on the local tier
+- Cost routing with a circuit breaker on the local tier (two live tiers
+  today, four in the code)
+- Cloud tier on an OAuth subscription instead of the API wallet
 - Memory 2.0 with a real exponential forgetting curve
 - Nightly consolidation at 02:00 (catches up after suspend)
-- PyQt6 HUD with transcript, thinking spinner, and live system stats
-- Telegram bot (owner-gated, text + voice OGG + quick-menu keyboard)
-- Obsidian read access (`vault_read`, `vault_list`, `vault_search`,
-  `vault_daily_append`)
-- Clap activation as a wake mechanism
+- Circular PyQt6/QWebEngine HUD with live system stats
+- Telegram bot (owner-gated, text + voice OGG, persistent reply keyboard,
+  confirm tap before mutating actions)
+- Obsidian read and write (`vault_read`, `vault_list`, `vault_search`,
+  `vault_append`, `vault_daily_append`, `vault_project_append`,
+  `vault_decision`)
 - Vault semantic search via Telegram — ChromaDB index over Obsidian notes
   (nomic-embed-text embeddings, `vault_recall` tool)
-- Cost telemetry written to `~/.local/share/jarvis/tool_stats.jsonl`
-- Edge TTS primary, Piper fallback
+- Spending analysis from bank statements, categorised by merchant type code
+- Rotating shift schedule, editable from Telegram, with a pre-shift reminder
+- System metrics from one source of truth: averaged and peak temperatures
+  with named sensors, fans, GPU, plus a persistent temperature history
+- Cost telemetry written to a local JSONL log
+- 371 tests across 28 files
 
 ### Planned
 
-- HUD refactor — remove transcript panel, keep stats bar and profile
-  toggle only
 - Architecture diagram (Mermaid or SVG)
 - Demo video or GIF — HUD + Telegram interaction
+- A test runner config. There is no `pytest.ini` and no `conftest.py`; the
+  suite runs by path, which works and is still a gap
 
 ### Removed or disabled
 
-- **Porcupine wake-word.** Disabled. The API key was never set. Clap
-  activation replaces it.
+- **Porcupine wake-word.** Disabled, together with the rest of the voice
+  stack. Double-clap activation replaced it while voice was still in use.
 - **Screen-aware proactivity.** Disabled. ~20 LLM calls per hour with
   rarely actionable hints. Cost not worth the value.
 - **Night mode.** Removed on 2026-05-09. Multi-day debug overhead exceeded
   its value.
 - **Voice loop (push-to-talk).** Deleted in favor of clap + Telegram voice.
+- **Voice, end to end.** Disabled in config (`[voice] enabled = false`,
+  `live_mode = false`), not deleted. STT, TTS, and clap activation all
+  work; I stopped reaching for them. See the note in
+  [What it does](#what-it-does).
+- **Cloud vision on photos.** A photo sent to Telegram used to go to a
+  cloud vision model. That path spent real money while `local_only = true`
+  claimed nothing would — the flag was a lie for exactly one code path.
+  Cut. Local vision through Ollama remains.
+- **Manual expense tracker.** Five build steps: receipt photo → local model
+  extracts the total → category button → JSON. Used once in six months,
+  then deleted in favour of reading bank statements.
+  [Its own post](blog/en/2026-10-23-deleting-the-feature-i-used-once.md).
 - **Career-ops infrastructure** (`_tin_inbox/scans/`, `_tin_inbox/tracked/`).
-  On paper only. The Python side is an empty stub. The vault folders do
-  not exist yet. Mentioned for honesty.
+  Deliberately postponed, not in progress. Mentioned for honesty.
 
 ## Failure modes
 
@@ -126,6 +174,20 @@ hiding them would be dishonest.
   preferring virtual `pipewire`/`pulse` devices over raw hw.
 - **Lid-close double suspend.** logind triggers a second suspend in the
   first 1–2 minutes after resume. Operational, not code.
+- **Confirm button bound to nothing.** The ✅ tap on a Telegram message used
+  to execute whatever action was pending *right then*, not the action the
+  button was attached to — and the buttons kept appearing on every later
+  reply, including in a group where other people can press them. Fixed with
+  per-action confirm tokens that expire.
+- **Currency of the account vs currency of the operation.** In the bank
+  statement API the transaction amount and the running balance are in the
+  *account's* currency, while the currency code on the same record describes
+  the *operation*. Reading them as a pair produces numbers that look
+  plausible and are wrong. Cost me a real bug before I read the field
+  definitions properly.
+- **One request per minute.** The same API rate-limits statement calls hard
+  and caps each call to a bounded date range. Naive paging just gets
+  refused, so statements are fetched in windows and cached on disk.
 
 The full table is in [ARCHITECTURE.md](ARCHITECTURE.md#failure-modes).
 
@@ -138,9 +200,20 @@ the lessons live:
   Qwen has the same footprint and behaves better.
 - **Voice loop → clap activation + Telegram voice.** Push-to-talk was
   fragile.
-- **Vault writes → read-only on practice.** The privacy window plus the
-  secret scanner made writes fail more often than they succeeded.
+- **Vault writes → read-only on practice, then back to read-write.** The
+  privacy window plus the secret scanner initially made writes fail more
+  often than they succeeded. Once both were tuned, writing became the normal
+  case again — a reversal of a reversal.
 - **Night mode → removed entirely** (2026-05-09).
+- **Sonnet as the chat model → back to Haiku** (2026-09-17). Routing the
+  persona's chat turns through the stronger model made it measurably worse
+  at being the persona: the assistant started leaking the identity and
+  habits of the coding agent it was being called through. Prompting did not
+  suppress it. The right place for a bigger model here is offline analysis,
+  not the live conversation.
+- **Manual expense tracking → bank statements** (2026-10-17). The feature
+  worked. It asked for effort at the one moment nobody has any — right
+  after paying for something. Six months, one entry. Deleted.
 
 Details in [ARCHITECTURE.md](ARCHITECTURE.md#decisions-that-were-reverted).
 
@@ -148,8 +221,10 @@ Details in [ARCHITECTURE.md](ARCHITECTURE.md#decisions-that-were-reverted).
 
 ASUS ROG Strix G713IC. Ubuntu 24.04. NVIDIA RTX 3050 4 GB VRAM.
 
-Upgrade on the horizon: RTX 5060 Ti 16 GB, if the project hits the VRAM
-ceiling with larger local models (Qwen 7B+ or local embeddings). See
+An upgrade is on the horizon and currently postponed: the 4 GB VRAM
+ceiling is the single biggest constraint on local model quality, and the
+honest answer to "which card" is still open — more VRAM on an older card
+beats fewer gigabytes on a newer one for this workload. See
 [ROADMAP.md](ROADMAP.md#hardware-upgrade-horizon).
 
 ## Source code access
@@ -196,7 +271,7 @@ specific needs, with honest assessment of what I do and do not understand.
 Technical write-ups in English: [blog/en/](blog/en/).
 Українські версії: [blog/uk/](blog/uk/).
 
-Post candidates are listed in [ROADMAP.md](ROADMAP.md#blog-post-candidates).
+Post candidates are listed in [ROADMAP.md](ROADMAP.md#blog-post-backlog).
 
 ## Why I'm building this
 
@@ -254,4 +329,3 @@ This is not gatekeeping for its own sake — see the operational note in
 [Why I'm building this](#why-im-building-this).
 
 **GitHub:** [@frdvch](https://github.com/frdvch)
-**LinkedIn:** [linkedin.com/in/antshkro](https://linkedin.com/in/antshkro)
